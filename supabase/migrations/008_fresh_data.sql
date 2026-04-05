@@ -1,0 +1,8 @@
+-- Fresh events for demo-organizer
+INSERT INTO events (name, description, venue, eventDate, category, imageUrl, isPublished, organizerId) VALUES
+('Summer Nights Concert', 'An unforgettable evening of live music under the stars featuring top artists.', 'Central Park Arena, New York', '2025-07-15T19:00:00Z', 'Music', 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800', true, 'demo-organizer'),
+('Tech Summit 2025', 'Annual technology conference with industry leaders and innovators.', 'Convention Center, San Francisco', '2025-08-20T09:00:00Z', 'Conference', 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800', true, 'demo-organizer'),
+('City Marathon 2025', 'Annual city marathon championship open to all runners.', 'Downtown Stadium, Boston', '2025-09-10T07:00:00Z', 'Sports', 'https://images.unsplash.com/photo-1552674605-db6ffd4effb5?w=800', true, 'demo-organizer'),
+('Art Workshop', 'Learn watercolor techniques in this hands-on creative workshop.', 'Art Studio, Seattle', '2025-06-25T14:00:00Z', 'Workshop', 'https://images.unsplash.com/photo-1460661419201-f4d5d565b1ab?w=800', true, 'demo-organizer'),
+('Food Festival', 'Taste cuisines from around the world at this amazing festival.', 'Harbor Plaza, Miami', '2025-10-05T12:00:00Z', 'Festival', 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800', true, 'demo-organizer')
+RETURNING id, name;

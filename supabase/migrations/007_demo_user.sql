@@ -1,0 +1,3 @@
+-- Note: Supabase Auth users need to be created through the Supabase Auth API
+-- For demo purposes, we'll use a placeholder user ID for the dashboard
+-- Users can access without email verification by using demoOrganizer as a placeholder ID
