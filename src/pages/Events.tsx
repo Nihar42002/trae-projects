@@ -7,7 +7,7 @@ import type { Event } from '../types'
 const categories = ['All', 'Music', 'Sports', 'Conference', 'Workshop', 'Festival']
 
 export default function Events() {
-  const { events, fetchEvents, isLoading } = useStore()
+  const { events, fetchEvents, isLoading, error } = useStore()
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
 
@@ -80,6 +80,11 @@ export default function Events() {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="bg-white rounded-2xl h-80 animate-pulse" />
             ))}
+          </div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <h3 className="text-lg font-semibold text-red-700 mb-2">Unable to load events</h3>
+            <p className="text-slate-500">{error}</p>
           </div>
         ) : events.length === 0 ? (
           <div className="text-center py-16">

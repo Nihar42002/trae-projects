@@ -2,13 +2,12 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { MapPin, Calendar, Clock, Ticket, Users, ArrowLeft, Check, X } from 'lucide-react'
 import { useStore } from '../store'
-import { supabase } from '../lib/supabase'
 import type { Event, TicketTier } from '../types'
 
 export default function EventDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { user, createBooking, isLoading, error } = useStore()
+  const { user, createBooking, fetchEvent, isLoading, error } = useStore()
   const [event, setEvent] = useState<Event | null>(null)
   const [selectedTier, setSelectedTier] = useState<TicketTier | null>(null)
   const [quantity, setQuantity] = useState(1)
@@ -16,16 +15,12 @@ export default function EventDetail() {
 
   useEffect(() => {
     if (!id) return
-    const fetchEvent = async () => {
-      const { data } = await supabase
-        .from('events')
-        .select('*, ticket_tiers(*)')
-        .eq('id', id)
-        .single()
+    const loadEvent = async () => {
+      const data = await fetchEvent(id)
       if (data) setEvent(data)
     }
-    fetchEvent()
-  }, [id])
+    loadEvent()
+  }, [id, fetchEvent])
 
   const handleBooking = async () => {
     if (!selectedTier || !event) return

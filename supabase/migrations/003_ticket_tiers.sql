@@ -30,7 +30,8 @@ SELECT
     NOW(),
     eventDate - INTERVAL '1 day'
 FROM events
-WHERE category IN ('Music', 'Conference', 'Sports', 'Workshop', 'Festival');
+WHERE category IN ('Music', 'Conference', 'Sports', 'Workshop', 'Festival')
+ON CONFLICT (eventid, name) DO NOTHING;
 
 -- Add VIP tier for some events
 INSERT INTO ticket_tiers (eventId, name, price, totalCapacity, available, saleStartDate, saleEndDate)
@@ -61,7 +62,8 @@ SELECT
     NOW(),
     eventDate - INTERVAL '1 day'
 FROM events
-WHERE category IN ('Music', 'Conference', 'Sports', 'Festival');
+WHERE category IN ('Music', 'Conference', 'Sports', 'Festival')
+ON CONFLICT (eventid, name) DO NOTHING;
 
 -- Add Early Bird tier for Music events
 INSERT INTO ticket_tiers (eventId, name, price, totalCapacity, available, saleStartDate, saleEndDate)
@@ -74,4 +76,5 @@ SELECT
     NOW(),
     NOW() + INTERVAL '14 days'
 FROM events
-WHERE category = 'Music';
+WHERE category = 'Music'
+ON CONFLICT (eventid, name) DO NOTHING;

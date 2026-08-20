@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS ticket_tiers (
     available INTEGER NOT NULL,
     saleStartDate TIMESTAMP WITH TIME ZONE,
     saleEndDate TIMESTAMP WITH TIME ZONE,
-    createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    createdAt TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    UNIQUE (eventId, name)
 );
 
 -- Bookings table
@@ -31,7 +32,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     userId TEXT NOT NULL,
     eventId UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    ticketTierId UUID NOT NULL REFERENCES ticket_tiers(id) ON DELETE SET NULL,
+    ticketTierId UUID NOT NULL REFERENCES ticket_tiers(id) ON DELETE RESTRICT,
     quantity INTEGER NOT NULL,
     totalPrice DECIMAL(10, 2) NOT NULL,
     status TEXT DEFAULT 'confirmed',
@@ -44,7 +45,7 @@ CREATE TABLE IF NOT EXISTS attendees (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     bookingId UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
     eventId UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
-    ticketTierId UUID NOT NULL REFERENCES ticket_tiers(id) ON DELETE SET NULL,
+    ticketTierId UUID NOT NULL REFERENCES ticket_tiers(id) ON DELETE RESTRICT,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
     checkedIn BOOLEAN DEFAULT false,

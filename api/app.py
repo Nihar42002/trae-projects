@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from supabase import create_client, Client
@@ -24,14 +25,14 @@ def get_events():
         category = request.args.get('category')
         search = request.args.get('search')
         
-        query = supabase.table('events').select('*').eq('isPublished', True)
+        query = supabase.table('events').select('*').eq('ispublished', True)
         
         if category:
             query = query.eq('category', category)
         if search:
             query = query.ilike('name', f'%{search}%')
         
-        query = query.eq('isPublished', True).order('eventDate', desc=False)
+        query = query.eq('ispublished', True).order('eventdate', desc=False)
         response = query.execute()
         
         return jsonify({'events': response.data})
@@ -58,11 +59,11 @@ def create_event():
             'name': data.get('name'),
             'description': data.get('description'),
             'venue': data.get('venue'),
-            'eventDate': data.get('eventDate'),
+            'eventdate': data.get('eventDate'),
             'category': data.get('category'),
-            'imageUrl': data.get('imageUrl'),
-            'isPublished': data.get('isPublished', False),
-            'organizerId': data.get('organizerId')
+            'imageurl': data.get('imageUrl'),
+            'ispublished': data.get('isPublished', False),
+            'organizerid': data.get('organizerId')
         }
         
         response = supabase.table('events').insert(event_data).execute()
@@ -87,7 +88,7 @@ def update_event(event_id):
 @app.route('/api/events/<event_id>/publish', methods=['POST'])
 def publish_event(event_id):
     try:
-        response = supabase.table('events').update({'isPublished': True}).eq('id', event_id).execute()
+        response = supabase.table('events').update({'ispublished': True}).eq('id', event_id).execute()
         
         if not response.data:
             return jsonify({'error': 'Event not found'}), 404
@@ -101,13 +102,13 @@ def create_ticket_tier():
     try:
         data = request.json
         tier_data = {
-            'eventId': data.get('eventId'),
+            'eventid': data.get('eventId'),
             'name': data.get('name'),
             'price': data.get('price'),
-            'totalCapacity': data.get('totalCapacity'),
+            'totalcapacity': data.get('totalCapacity'),
             'available': data.get('totalCapacity'),
-            'saleStartDate': data.get('saleStartDate'),
-            'saleEndDate': data.get('saleEndDate')
+            'salestartdate': data.get('saleStartDate'),
+            'saleenddate': data.get('saleEndDate')
         }
         
         response = supabase.table('ticket_tiers').insert(tier_data).execute()
@@ -119,7 +120,7 @@ def create_ticket_tier():
 @app.route('/api/events/<event_id>/tickets', methods=['GET'])
 def get_ticket_tiers(event_id):
     try:
-        response = supabase.table('ticket_tiers').select('*').eq('eventId', event_id).execute()
+        response = supabase.table('ticket_tiers').select('*').eq('eventid', event_id).execute()
         
         return jsonify({'tiers': response.data})
     except Exception as e:
@@ -131,7 +132,7 @@ def get_bookings():
         user_id = request.args.get('userId')
         
         if user_id:
-            response = supabase.table('bookings').select('*, events(*), ticket_tiers(*)').eq('userId', user_id).execute()
+            response = supabase.table('bookings').select('*, events(*), ticket_tiers(*)').eq('userid', user_id).execute()
         else:
             response = supabase.table('bookings').select('*, events(*), ticket_tiers(*)').execute()
         
@@ -144,11 +145,11 @@ def create_booking():
     try:
         data = request.json
         booking_data = {
-            'userId': data.get('userId'),
-            'eventId': data.get('eventId'),
-            'ticketTierId': data.get('ticketTierId'),
+            'userid': data.get('userId'),
+            'eventid': data.get('eventId'),
+            'tickettierid': data.get('ticketTierId'),
             'quantity': data.get('quantity'),
-            'totalPrice': data.get('totalPrice'),
+            'totalprice': data.get('totalPrice'),
             'status': 'confirmed'
         }
         
@@ -176,10 +177,10 @@ def cancel_booking(booking_id):
         
         supabase.table('bookings').update({'status': 'cancelled'}).eq('id', booking_id).execute()
         
-        tier_response = supabase.table('ticket_tiers').select('available').eq('id', booking['ticketTierId']).execute()
+        tier_response = supabase.table('ticket_tiers').select('available').eq('id', booking['tickettierid']).execute()
         if tier_response.data:
             new_available = tier_response.data[0]['available'] + booking['quantity']
-            supabase.table('ticket_tiers').update({'available': new_available}).eq('id', booking['ticketTierId']).execute()
+            supabase.table('ticket_tiers').update({'available': new_available}).eq('id', booking['tickettierid']).execute()
         
         return jsonify({'message': 'Booking cancelled successfully'})
     except Exception as e:
@@ -191,7 +192,7 @@ def get_attendees():
         event_id = request.args.get('eventId')
         
         if event_id:
-            response = supabase.table('attendees').select('*, bookings(*), ticket_tiers(*)').eq('eventId', event_id).execute()
+            response = supabase.table('attendees').select('*, bookings(*), ticket_tiers(*)').eq('eventid', event_id).execute()
         else:
             response = supabase.table('attendees').select('*, bookings(*), ticket_tiers(*)').execute()
         
@@ -203,8 +204,8 @@ def get_attendees():
 def checkin_attendee(attendee_id):
     try:
         response = supabase.table('attendees').update({
-            'checkedIn': True,
-            'checkInTime': 'now()'
+            'checkedin': True,
+            'checkintime': datetime.now(timezone.utc).isoformat()
         }).eq('id', attendee_id).execute()
         
         if not response.data:
@@ -220,12 +221,12 @@ def get_sales_analytics():
         event_id = request.args.get('eventId')
         
         if event_id:
-            bookings = supabase.table('bookings').select('*, ticket_tiers(*)').eq('eventId', event_id).execute()
+            bookings = supabase.table('bookings').select('*, ticket_tiers(*)').eq('eventid', event_id).execute()
         else:
             bookings = supabase.table('bookings').select('*, ticket_tiers(*), events(*)').execute()
         
         total_tickets = sum(b.get('quantity', 0) for b in bookings.data)
-        total_revenue = sum(b.get('totalPrice', 0) for b in bookings.data)
+        total_revenue = sum(b.get('totalprice', 0) for b in bookings.data)
         
         tier_sales = {}
         for booking in bookings.data:
@@ -233,7 +234,7 @@ def get_sales_analytics():
             if tier_name not in tier_sales:
                 tier_sales[tier_name] = {'tickets': 0, 'revenue': 0}
             tier_sales[tier_name]['tickets'] += booking.get('quantity', 0)
-            tier_sales[tier_name]['revenue'] += booking.get('totalPrice', 0)
+            tier_sales[tier_name]['revenue'] += booking.get('totalprice', 0)
         
         return jsonify({
             'totalTickets': total_tickets,
@@ -249,11 +250,11 @@ def get_dashboard_stats():
         events_response = supabase.table('events').select('id').execute()
         total_events = len(events_response.data)
         
-        bookings_response = supabase.table('bookings').select('quantity, totalPrice').execute()
+        bookings_response = supabase.table('bookings').select('quantity, totalprice').execute()
         total_tickets_sold = sum(b.get('quantity', 0) for b in bookings_response.data)
-        total_revenue = sum(b.get('totalPrice', 0) for b in bookings_response.data)
+        total_revenue = sum(b.get('totalprice', 0) for b in bookings_response.data)
         
-        upcoming_response = supabase.table('events').select('id').gte('eventDate', 'now()').execute()
+        upcoming_response = supabase.table('events').select('id').gte('eventdate', datetime.now(timezone.utc).isoformat()).execute()
         upcoming_events = len(upcoming_response.data)
         
         return jsonify({
@@ -268,7 +269,7 @@ def get_dashboard_stats():
 @app.route('/api/organizer/<organizer_id>/events', methods=['GET'])
 def get_organizer_events(organizer_id):
     try:
-        response = supabase.table('events').select('*, ticket_tiers(*)').eq('organizerId', organizer_id).execute()
+        response = supabase.table('events').select('*, ticket_tiers(*)').eq('organizerid', organizer_id).execute()
         
         return jsonify({'events': response.data})
     except Exception as e:

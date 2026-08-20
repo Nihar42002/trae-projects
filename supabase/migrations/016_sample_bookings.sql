@@ -24,7 +24,7 @@ SELECT
     'DEMO-' || NOW()::text
 FROM events e
 JOIN ticket_tiers t ON t.eventid = e.id
-WHERE e.name = 'Tech Conference 2025' AND t.name = 'General'
+WHERE e.name = 'Tech Conference 2025' AND t.name = 'General Admission'
 LIMIT 1;
 
 INSERT INTO bookings (userid, eventid, tickettierid, quantity, totalprice, status, bookingreference)
@@ -38,5 +38,5 @@ SELECT
     'DEMO-' || NOW()::text
 FROM events e
 JOIN ticket_tiers t ON t.eventid = e.id
-WHERE e.name = 'Marathon Championship' AND t.name = 'Runner Entry'
+WHERE e.name = 'Marathon Championship' AND t.name = 'General Admission'
 LIMIT 1;

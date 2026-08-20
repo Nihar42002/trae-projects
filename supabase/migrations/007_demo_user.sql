@@ -1,3 +1,3 @@
--- Note: Supabase Auth users need to be created through the Supabase Auth API
--- For demo purposes, we'll use a placeholder user ID for the dashboard
--- Users can access without email verification by using demoOrganizer as a placeholder ID
+-- Supabase Auth users cannot be created by a database migration.
+-- Run api/create_demo_user.py with SUPABASE_SERVICE_ROLE_KEY after applying migrations.
+-- The script creates or finds the Auth user and replaces demo-organizer IDs in seed rows.
